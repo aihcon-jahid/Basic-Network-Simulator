@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Khadizatul Kobra">
+    <title>Network Simulation</title>
+    <style> *{ font-family: Arial, Helvetica, sans-serif } button { padding: 5px 10px; } .mt-20{ margin-top: 20px; } .mb-0{ margin-bottom: 0px; } </style>
+</head>
+<body>
+    <center>
+        <h1 class="mb-0">Network Simulation</h1>
+        <button onclick="addDevice()">Add Device</button>
+        <button onclick="connectDevices()">Connect Devices</button>
+        <button onclick="removeDevice()" class="mt-20">Remove Device</button>
+        <button onclick="removeConnectDevice()" class="mt-20">Remove Connection</button>
+        <button onclick="plotNetwork()" class="mt-20" >Plot Network</button>
+        <div id="imageContainer"></div>
+    </center>
+    <script>
+        const baseUrl = "http://127.0.0.1:8000";
+
+        async function addDevice() {
+            // Prompt user to enter device name
+            const deviceName = prompt("Enter device name:");
+            if (deviceName === null) {
+                return; 
+            }
+            // Construct URL for adding device
+            const url = `${baseUrl}/add_device/?device_name=${encodeURIComponent(deviceName)}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            });
+            const data = await response.json();
+            // Plot the network after adding device and show success message
+            plotNetwork();
+            alert(data.message);
+        }
+
+        async function connectDevices() {
+            // Prompt user to enter names of devices to connect
+            const device1 = prompt("Enter first device name:");
+            const device2 = prompt("Enter second device name:");
+            if (device1 === null || device2 === null) {
+                return; 
+            }
+            // Construct URL for connecting devices
+            const url = `${baseUrl}/connect_device/?device1=${encodeURIComponent(device1)}&device2=${encodeURIComponent(device2)}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            });
+            const data = await response.json();
+            // Plot the network after connecting devices and show success message
+            plotNetwork();
+            alert(data.message);
+        }
+
+        async function removeDevice() {
+            // Prompt user to enter device name to remove
+            const deviceName = prompt("Enter device name to remove:");
+            if (deviceName === null) {
+                return; 
+            }
+            // Construct URL for removing device
+            const url = `${baseUrl}/remove_device/?device_name=${encodeURIComponent(deviceName)}`;
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            });
+            const data = await response.json();
+            // Plot the network after removing device and show success message
+            plotNetwork();
+            alert(data.message);
+        }
+
+        async function removeConnectDevice() {
+            // Prompt user to enter names of devices to remove connection
+            const device1 = prompt("Enter first device name:");
+            const device2 = prompt("Enter second device name:");
+            if (device1 === null || device2 === null) {
+                return; 
+            }
+            // Construct URL for removing connection between devices
+            const url = `${baseUrl}/remove_connect_device/?device1=${encodeURIComponent(device1)}&device2=${encodeURIComponent(device2)}`;
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            });
+            const data = await response.json();
+            // Plot the network after removing connection and show success message
+            plotNetwork();
+            alert(data.message);
+        }
+
+        async function plotNetwork() {
+            // Fetch the network plot from the server and display it
+            const response = await fetch(baseUrl+'/plot_network/');
+            const data = await response.json();            
+            const img = document.createElement('img');
+            img.src = `data:image/png;base64,${data.image}`;
+            document.getElementById('imageContainer').innerHTML = '';
+            document.getElementById('imageContainer').appendChild(img);
+        }
+    </script>
+</body>
+</html>
